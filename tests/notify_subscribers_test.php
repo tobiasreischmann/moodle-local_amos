@@ -50,27 +50,40 @@ class local_amos_notify_subscribers_testcase extends advanced_testcase {
         $user2 = $generator->create_user();
         $user3 = $generator->create_user();
 
+        //$today              = strtotime('12:00:00');
+        //$dayBeforeYesterday = strtotime('-2 day', $today);
+        $today              = time();
+        $dayBeforeYesterday = time() - 140000;
+
         $component = new mlang_component('langconfig', 'cs', mlang_version::by_branch('MOODLE_36_STABLE'));
-        $component->add_string(new mlang_string('thislanguage', 'Čeština'));
-        $component->add_string(new mlang_string('thislanguageint', 'Czech'));
+        $component->add_string(new mlang_string('thislanguage', 'Čeština', $dayBeforeYesterday));
+        $component->add_string(new mlang_string('thislanguageint', 'Czech', $dayBeforeYesterday));
         $stage = new mlang_stage();
         $stage->add($component);
-        $stage->commit('Registering the Czech language', array('source' => 'bot'), true);
+        $stage->commit('Registering the Czech language', array('source' => 'bot'));
+        $component->clear();
+
+        $component = new mlang_component('langconfig', 'cs', mlang_version::by_branch('MOODLE_36_STABLE'));
+        $component->add_string(new mlang_string('thislanguage', 'Čeština2', $today));
+        $component->add_string(new mlang_string('thislanguageint', 'Czech2', $today));
+        $stage = new mlang_stage();
+        $stage->add($component);
+        $stage->commit('Registering the Czech language', array('source' => 'bot'));
         $component->clear();
 
         $component = new mlang_component('langconfig', 'de', mlang_version::by_branch('MOODLE_36_STABLE'));
-        $component->add_string(new mlang_string('thislanguage', 'German'));
-        $component->add_string(new mlang_string('thislanguageint', 'DE'));
+        $component->add_string(new mlang_string('thislanguage', 'German', $today));
+        $component->add_string(new mlang_string('thislanguageint', 'DE', $today));
         $stage = new mlang_stage();
         $stage->add($component);
-        $stage->commit('Registering the German language', array('source' => 'amos'), true);
+        $stage->commit('Registering the German language', array('source' => 'amos'));
         $component->clear();
 
         $component = new mlang_component('admin', 'de', mlang_version::by_branch('MOODLE_36_STABLE'));
-        $component->add_string(new mlang_string('accounts', 'Kontos'));
+        $component->add_string(new mlang_string('accounts', 'Accounts', $today));
         $stage = new mlang_stage();
         $stage->add($component);
-        $stage->commit('Registering the German string form accounts', array('source' => 'amos'), true);
+        $stage->commit('Registering the German string form accounts', array('source' => 'amos'));
         $component->clear();
 
         // Add a subscription.
@@ -107,7 +120,7 @@ class local_amos_notify_subscribers_testcase extends advanced_testcase {
         $task = new \local_amos\task\notify_subscribers();
         $task->execute();
         $this->assertCount(2, $sink->get_messages());
-        $this->assertContains("thislanguage", $sink->get_messages()[0]->body);
+        $this->assertContains("thislanguageasd", $sink->get_messages()[0]->body);
         $sink->close();
     }
 }
